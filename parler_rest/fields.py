@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 from rest_framework import serializers
@@ -76,6 +77,13 @@ class TranslatedFieldsField(serializers.Field):
         result = serializers.OrderedDict()
         for translation in value.all():  # value = translations related manager
             result[translation.language_code] = serializer.to_representation(translation)
+
+        if settings.PARLER_REST_SHOW_EXCLUDED_LANGUAGE_TABS:
+            existing_languages = [lg_code for lg_code in result]
+            settings_languages = [language[0] for language in settings.LANGUAGES]
+            empty_languages = [lg_code for lg_code in settings_languages if lg_code not in existing_languages]
+            for lg_code in empty_languages:
+                result[lg_code] = None # This should be a dict of the actual fields from the serializer
 
         return result
 
