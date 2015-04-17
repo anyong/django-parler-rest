@@ -83,7 +83,9 @@ class TranslatedFieldsField(serializers.Field):
             settings_languages = [language[0] for language in settings.LANGUAGES]
             empty_languages = [lg_code for lg_code in settings_languages if lg_code not in existing_languages]
             for lg_code in empty_languages:
-                result[lg_code] = None # This should be a dict of the actual fields from the serializer
+                result[lg_code] = dict()
+                for field in serializer.fields:
+                    result[lg_code][field] = ''
 
         return result
 
